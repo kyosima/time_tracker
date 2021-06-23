@@ -94,15 +94,27 @@ class Signin extends StatelessWidget {
               SizedBox(
                 height: 5,
               ),
-              SignInButton(
-                text: "Sign in with Anonymous",
-                color: Colors.orangeAccent,
-                onPress: () {
-                  print("Sign in with Anonymous");
-                },
-                borderRadius: 4,
-                textColor: Colors.white,
-                LinkIMG: null,
+              SizedBox(
+                height: 50,
+                child: RaisedButton(
+                  color: Colors.orange,
+                  onPressed: () {},
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Go Anonymous",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4)),
+                ),
               ),
             ],
           ),
@@ -110,8 +122,4 @@ class Signin extends StatelessWidget {
       ),
     );
   }
-}
-
-void SinginwithGoogle() {
-  print("OK");
 }
