@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:time_tracker/services/auth.dart';
+import 'package:time_tracker/services/validator.dart';
 
 enum EmailSignInFormType { signIn, regiter }
 
-class EmailSignInForm extends StatefulWidget {
+class EmailSignInForm extends StatefulWidget with EmailandPasswordValidator {
   EmailSignInForm({@required this.auth});
   final AuthBase auth;
 
@@ -49,13 +50,18 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         ? "Don't have account ? Register"
         : "Already have account! Sign in";
 
-    bool _submitEnable = _email.isNotEmpty && _password.isNotEmpty;
+    bool _submitEnable = widget.emailvalidator.isValid(_email) &&
+        widget.passwordvalidator.isValid(_password);
+    bool emailvalid = widget.emailvalidator.isValid(_email);
+    bool passwordvalid = widget.emailvalidator.isValid(_password);
 
     return [
       TextField(
         controller: _emailController,
-        decoration:
-            InputDecoration(labelText: 'Email', hintText: 'email@gmail.com'),
+        decoration: InputDecoration(
+            labelText: 'Email',
+            hintText: 'email@gmail.com',
+            errorText: emailvalid ? null : "Email can't empty"),
         autocorrect: false,
         keyboardType: TextInputType.emailAddress,
         onChanged: (_email) => _inputUpdate(),
@@ -64,12 +70,12 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         height: 10,
       ),
       TextField(
-        onChanged: (_password) => _inputUpdate(),
         controller: _passwordController,
         obscureText: true,
         decoration: InputDecoration(
-          labelText: 'Password',
-        ),
+            labelText: 'Password',
+            errorText: passwordvalid ? null : "Password can't empty"),
+        onChanged: (_password) => _inputUpdate(),
       ),
       SizedBox(
         height: 10,
