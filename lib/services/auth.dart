@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 abstract class AuthBase {
   User get currentUser;
@@ -15,6 +17,7 @@ abstract class AuthBase {
 
 class Auth implements AuthBase {
   final _firebaseAuth = FirebaseAuth.instance;
+
   @override
   Stream<User> authStateChange() => _firebaseAuth.authStateChanges();
   @override
@@ -22,6 +25,7 @@ class Auth implements AuthBase {
   @override
   Future<User> signInAnonymously() async {
     final UserCredential = await _firebaseAuth.signInAnonymously();
+    print('${UserCredential.user}');
     return UserCredential.user;
   }
 
@@ -106,5 +110,17 @@ class Auth implements AuthBase {
     final facebookSignIn = FacebookLogin();
     await facebookSignIn.logOut();
     await _firebaseAuth.signOut();
+  }
+
+  @override
+  Future<User> signInWithPhoneNumber() {
+    // TODO: implement signInWithPhoneNumber
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> verifyPhoneNumber() {
+    // TODO: implement verifyPhoneNumber
+    throw UnimplementedError();
   }
 }

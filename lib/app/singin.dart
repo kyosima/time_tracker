@@ -1,14 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:time_tracker/app/emai_signin.dart';
+import 'package:provider/provider.dart';
+import 'package:time_tracker/app/email_signin.dart';
+import 'package:time_tracker/app/phone_signin.dart';
 import 'package:time_tracker/common/button_signin.dart';
 import 'package:time_tracker/services/auth.dart';
 
 class Signin extends StatelessWidget {
-  Signin({@required this.auth});
-  final AuthBase auth;
+  Future<void> _signInAnonymously(BuildContext context) async {
+    final auth = Provider.of<AuthBase>(context, listen: false);
 
-  Future<void> _signInAnonymously() async {
     try {
       await auth.signInAnonymously();
     } catch (e) {
@@ -16,7 +17,9 @@ class Signin extends StatelessWidget {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+
     try {
       await auth.singInWithGoogle();
     } catch (e) {
@@ -24,7 +27,9 @@ class Signin extends StatelessWidget {
     }
   }
 
-  Future<void> _signInWithFacebook() async {
+  Future<void> _signInWithFacebook(BuildContext context) async {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+
     try {
       await auth.signInWithFacebook();
     } catch (e) {
@@ -37,9 +42,17 @@ class Signin extends StatelessWidget {
       context,
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (context) => EmailSignIn(
-          auth: auth,
-        ),
+        builder: (context) => EmailSignIn(),
+      ),
+    );
+  }
+
+  void _signInWithPhone(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: false,
+        builder: (context) => PhoneSignIn(),
       ),
     );
   }
@@ -90,7 +103,7 @@ class Signin extends StatelessWidget {
               SignInButton(
                 text: "Sign in with Google",
                 color: Colors.white,
-                onPress: _signInWithGoogle,
+                onPress: () => _signInWithGoogle(context),
                 borderRadius: 4,
                 textColor: Colors.black,
                 LinkIMG: 'assets/images/google.png',
@@ -101,7 +114,7 @@ class Signin extends StatelessWidget {
               SignInButton(
                 text: "Sign in with Facebook",
                 color: Colors.blue,
-                onPress: _signInWithFacebook,
+                onPress: () => _signInWithFacebook(context),
                 borderRadius: 4,
                 textColor: Colors.white,
                 LinkIMG: 'assets/images/facebook.png',
@@ -116,6 +129,17 @@ class Signin extends StatelessWidget {
                 borderRadius: 4,
                 textColor: Colors.white,
                 LinkIMG: 'assets/images/email.png',
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SignInButton(
+                text: "Sign in with Phone",
+                color: Colors.lightGreen,
+                onPress: () => _signInWithPhone(context),
+                borderRadius: 4,
+                textColor: Colors.white,
+                LinkIMG: 'assets/images/phone.png',
               ),
               Divider(
                 color: Colors.grey,
@@ -133,7 +157,7 @@ class Signin extends StatelessWidget {
                 height: 50,
                 child: RaisedButton(
                   color: Colors.orange,
-                  onPressed: _signInAnonymously,
+                  onPressed: () => _signInAnonymously(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

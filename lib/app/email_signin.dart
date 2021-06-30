@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:time_tracker/app/emaill_signin_form.dart';
-import 'package:time_tracker/services/auth.dart';
 
 class EmailSignIn extends StatelessWidget {
-  EmailSignIn({@required this.auth});
-
-  final AuthBase auth;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,9 +14,7 @@ class EmailSignIn extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Card(
-            child: EmailSignInForm(
-              auth: auth,
-            ),
+            child: EmailSignInForm(),
           ),
         ),
       ),

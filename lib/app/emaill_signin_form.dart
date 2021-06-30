@@ -1,14 +1,15 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracker/services/auth.dart';
 import 'package:time_tracker/services/validator.dart';
 
 enum EmailSignInFormType { signIn, regiter }
 
 class EmailSignInForm extends StatefulWidget with EmailandPasswordValidator {
-  EmailSignInForm({@required this.auth});
-  final AuthBase auth;
-
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
 }
@@ -19,16 +20,50 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   String get _email => _emailController.text;
   String get _password => _passwordController.text;
   EmailSignInFormType _formType = EmailSignInFormType.signIn;
-  void _submit() async {
+  bool _submitted = false;
+  void _submit(BuildContext context) async {
+    setState(() {
+      _submitted = true;
+    });
+    final auth = Provider.of<AuthBase>(context, listen: false);
     try {
       if (_formType == EmailSignInFormType.signIn) {
-        await widget.auth.signInWithEmailandPassword(_email, _password);
+        await auth.signInWithEmailandPassword(_email, _password);
       } else {
-        await widget.auth.createWithEmailandPassword(_email, _password);
+        await auth.createWithEmailandPassword(_email, _password);
       }
       Navigator.of(context).pop();
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       print(e.toString());
+      if (!Platform.isIOS) {
+        showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+                  title: Text("ERROR"),
+                  content: Text(e.message),
+                  actions: [
+                    FlatButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Ok"))
+                  ],
+                ));
+      } else {
+        showDialog(
+            context: context,
+            builder: (_) => CupertinoAlertDialog(
+                  title: Text("ERROR"),
+                  content: Text(e.message),
+                  actions: [
+                    FlatButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Ok"))
+                  ],
+                ));
+      }
     }
   }
 
@@ -52,8 +87,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
     bool _submitEnable = widget.emailvalidator.isValid(_email) &&
         widget.passwordvalidator.isValid(_password);
-    bool emailvalid = widget.emailvalidator.isValid(_email);
-    bool passwordvalid = widget.emailvalidator.isValid(_password);
+    bool showErrorText = _submitted && !widget.emailvalidator.isValid(_email);
+    bool showErrorPassword =
+        _submitted && !widget.emailvalidator.isValid(_password);
 
     return [
       TextField(
@@ -61,7 +97,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         decoration: InputDecoration(
             labelText: 'Email',
             hintText: 'email@gmail.com',
-            errorText: emailvalid ? null : "Email can't empty"),
+            errorText: showErrorText ? "Email can't empty" : null),
         autocorrect: false,
         keyboardType: TextInputType.emailAddress,
         onChanged: (_email) => _inputUpdate(),
@@ -74,14 +110,14 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         obscureText: true,
         decoration: InputDecoration(
             labelText: 'Password',
-            errorText: passwordvalid ? null : "Password can't empty"),
+            errorText: showErrorPassword ? "Password can't empty" : null),
         onChanged: (_password) => _inputUpdate(),
       ),
       SizedBox(
         height: 10,
       ),
       RaisedButton(
-        onPressed: _submitEnable ? _submit : null,
+        onPressed: _submitEnable ? () => _submit(context) : null,
         child: Text(
           pritext,
           style: TextStyle(color: Colors.white),
